@@ -3,8 +3,8 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ApiContract, BackendCredentialsContract, NamedValueCreateContract, OperationContract } from "@azure/arm-apimanagement/src/models";
-import { Site } from "@azure/arm-appservice/src/models";
+import { ApiContract, BackendCredentialsContract, NamedValueCreateContract, OperationContract } from "@azure/arm-apimanagement";
+import { Site } from "@azure/arm-appservice";
 import { WebResource } from "@azure/ms-rest-js";
 import { ProgressLocation, window } from "vscode";
 import { IActionContext } from "@microsoft/vscode-azext-utils";

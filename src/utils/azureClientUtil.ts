@@ -10,7 +10,8 @@ import { AzureSubscriptionHelper } from "../azure/azureLogin/subscriptions";
 
 export namespace azureClientUtil {
     export function getClient(context: IActionContext, node: AzExtTreeItem): WebSiteManagementClient {
-        return createAzureClient([context, node], WebSiteManagementClient);
+        // tslint:disable-next-line: no-any
+        return createAzureClient([context, node], WebSiteManagementClient as any) as any;
     }
 
     // tslint:disable: no-unsafe-any

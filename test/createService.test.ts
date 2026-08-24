@@ -39,7 +39,7 @@ describe('Create Azure Resources', function() {
         for (const resourceGroup of resourceGroupsToDelete) {
             if (await client.resourceGroups.checkExistence(resourceGroup) !== undefined) {
                 console.log(`Deleting resource group "${resourceGroup}"...`);
-                await client.resourceGroups.deleteMethod(resourceGroup);
+                await client.resourceGroups.delete(resourceGroup);
                 console.log(`Resource group "${resourceGroup}" deleted.`);
             } else {
                 // If the test failed, the resource group might not actually exist
@@ -52,15 +52,18 @@ describe('Create Azure Resources', function() {
 
 async function getResourceManagementClient(testAccount: TestAzureAccount): Promise<ResourceManagementClient> {
     const subscriptionContext = testAccount.getSubscriptionContext();
-    const creds = getCredentialForToken(await subscriptionContext.credentials.getToken());
+    const creds = await getCredentialForToken(testAccount);
     return new ResourceManagementClient(creds, subscriptionContext.subscriptionId);
 }
 
-function getCredentialForToken(accessToken: any) {
+async function getCredentialForToken(testAccount: TestAzureAccount) {
+    const subscriptionContext = testAccount.getSubscriptionContext();
+    const token = await subscriptionContext.credentials.getToken();
     return {
+      getToken: async () => token,
       signRequest: (request: any) => {
         if (!request.headers) {request.headers = new HttpHeaders();}
-        request.headers.set("Authorization", `Bearer ${accessToken.token}`);
+        request.headers.set("Authorization", `Bearer ${token.token}`);
         return Promise.resolve(request);
       }
     };
