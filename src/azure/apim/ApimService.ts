@@ -335,6 +335,25 @@ export class ApimService {
         return <IMcpServerApiContract>(result.parsedBody);
     }
 
+    // The ARM SDK's apiPolicy.get does not populate `value` for API policies (returns undefined),
+    // so fetch the raw policy directly and read properties.value.
+    public async getApiPolicy(apiName: string): Promise<string | undefined> {
+        const client: ServiceClient = new ServiceClient(this.credentials, clientOptions);
+        const result: HttpOperationResponse = await client.sendRequest({
+            method: "GET",
+            url: `${this.baseUrl}/apis/${apiName}/policies/policy?api-version=${Constants.apimApiVersion}&format=rawxml`,
+            headers: { Accept: "application/json" }
+        });
+        if (result.status === 404) {
+            return undefined;
+        }
+        if (result.status >= 400) {
+            throw new Error(result.bodyAsText ?? `Failed to get API policy. Status code: ${result.status}`);
+        }
+        // tslint:disable-next-line: no-unsafe-any
+        return result.parsedBody?.properties?.value;
+    }
+
     private genSiteUrl(endPointUrl: string, subscriptionId: string, resourceGroup: string, serviceName: string): string {
         return `${endPointUrl}/subscriptions/${subscriptionId}/resourceGroups/${resourceGroup}/providers/Microsoft.ApiManagement/service/${serviceName}`;
     }
