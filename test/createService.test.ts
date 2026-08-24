@@ -7,10 +7,9 @@ import { ResourceManagementClient } from '@azure/arm-resources';
 import { TestAzureAccount } from '@microsoft/vscode-azext-dev';
 import { AzExtParentTreeItem } from '@microsoft/vscode-azext-utils';
 import { ext, treeUtils } from '../extension.bundle';
-import { HttpHeaders } from '@azure/ms-rest-js';
 import * as vscode from 'vscode';
 
-let longRunningTestsEnabled = !/^(false|0)?$/i.test(process.env.ENABLE_LONG_RUNNING_TESTS || '');
+const longRunningTestsEnabled = !/^(false|0)?$/i.test(process.env.ENABLE_LONG_RUNNING_TESTS || '');
 
 describe('Create Azure Resources', function() {
     this.timeout(1200 * 1000);
@@ -60,11 +59,6 @@ async function getCredentialForToken(testAccount: TestAzureAccount) {
     const subscriptionContext = testAccount.getSubscriptionContext();
     const token = await subscriptionContext.credentials.getToken();
     return {
-      getToken: async () => token,
-      signRequest: (request: any) => {
-        if (!request.headers) {request.headers = new HttpHeaders();}
-        request.headers.set("Authorization", `Bearer ${token.token}`);
-        return Promise.resolve(request);
-      }
+      getToken: async () => token
     };
 }
