@@ -76,11 +76,7 @@ async function askReleaseNotes(context: IActionContext): Promise<string> {
     const defaultName = localize('releaseName', "New release");
     return (await context.ui.showInputBox({
         prompt: releaseNotesPrompt,
-        value: defaultName,
-        validateInput: async (value: string | undefined): Promise<string | undefined> => {
-            value = value ? value.trim() : '';
-            return undefined;
-        }
+        value: defaultName
     })).trim();
 }
 
@@ -154,10 +150,6 @@ async function askRevisionDescription(context: IActionContext): Promise<string> 
     const defaultDescription: string = localize('revisionPrompt',  "New API revision");
     return (await context.ui.showInputBox({
         prompt: releaseNotesPrompt,
-        value: defaultDescription,
-        validateInput: async (value: string | undefined): Promise<string | undefined> => {
-            value = value ? value.trim() : '';
-            return undefined;
-        }
+        value: defaultDescription
     })).trim();
 }
