@@ -18,10 +18,8 @@
         },
         {
             "type": "npm",
-            "script": "webpack",
-            "problemMatcher": [
-                "$tsc"
-            ],
+            "script": "esbuild",
+            "problemMatcher": [],
             "group": "build"
         }
     ]

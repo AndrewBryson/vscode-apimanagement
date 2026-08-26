@@ -974,7 +974,7 @@
         ]
     },
     "scripts": {
-        "vscode:prepublish": "npm run webpack-prod",
+        "vscode:prepublish": "npm run build && node esbuild.js --production",
         "build": "tsc -p ./",
         "compile": "tsc -watch -p ./",
         "package": "vsce package",
@@ -984,15 +984,12 @@
         "test": "vscode-test",
         "watch": "tsc -watch -p ./",
         "all": "npm i && npm run lint && npm test",
-        "webpack": "npm run build && gulp webpack-dev",
-        "webpack-prod": "npm run build && gulp webpack-prod",
-        "webpack-profile": "webpack --profile --json --mode production > webpack-stats.json && echo Use http://webpack.github.io/analyse to analyze the stats"
+        "esbuild": "node esbuild.js",
+        "esbuild-watch": "node esbuild.js --watch"
     },
     "devDependencies": {
-        "@microsoft/vscode-azext-dev": "^3.0.1",
         "@types/chai": "^5.2.2",
         "@types/fs-extra": "^4.0.3",
-        "@types/gulp": "^4.0.6",
         "@types/jsonwebtoken": "^9.0.8",
         "@types/mocha": "^10.0.0",
         "@types/node": "^26.2.0",
@@ -1002,8 +999,8 @@
         "@vscode/test-electron": "^3.1.0",
         "@vscode/vsce": "^3.9.2",
         "chai": "^5.2.0",
+        "esbuild": "^0.28.1",
         "eslint": "^10.8.1",
-        "gulp": "^5.0.0",
         "mocha": "^11.8.0",
         "mocha-junit-reporter": "^2.2.1",
         "mocha-multi-reporters": "^1.5.1",
@@ -1011,9 +1008,7 @@
         "sinon": "^19.0.2",
         "ts-node": "^10.9.2",
         "typescript": "^5.9.3",
-        "typescript-eslint": "^8.67.0",
-        "webpack": "^5.109.2",
-        "webpack-cli": "^7.2.2"
+        "typescript-eslint": "^8.67.0"
     },
     "dependencies": {
         "@azure/arm-apimanagement": "^10.0.0",

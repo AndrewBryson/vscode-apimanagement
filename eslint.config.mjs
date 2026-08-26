@@ -8,8 +8,7 @@ export default tseslint.config(
             "dist/**",
             "node_modules/**",
             "**/*.d.ts",
-            "gulpfile.ts",
-            "webpack.config.js",
+            "esbuild.js",
             "main.js",
             ".vscode-test/**"
         ]
