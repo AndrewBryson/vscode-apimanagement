@@ -70,6 +70,49 @@ const buildReporterPlugin = {
     },
 };
 
+// `tas-client` (pulled in transitively by @microsoft/vscode-azext-utils for the experimentation
+// service) is published as `"type": "module"` but ships a single UMD file, dist/tas-client.min.js.
+// Because the package is flagged as ESM, esbuild wraps that file in an `__esm` initializer, which shares
+// the bundle's top-level scope. The UMD body then runs `module.exports = factory()`, writing to the
+// bundle's REAL top-level `module.exports` and clobbering the extension's own exports — leaving only
+// `ExperimentationService`, which makes `require('./dist/extension.bundle').activateInternal` undefined
+// and breaks activation.
+//
+// Loading the file through a custom namespace bypasses the package.json `type: module` classification, so
+// esbuild treats it as CommonJS and gives it its own local `module`/`exports`. This matches how the
+// previous webpack build wrapped every module and keeps the UMD's writes local to its own module.
+function resolveTasClientEntry() {
+    try {
+        return require.resolve('tas-client');
+    } catch {
+        const fallback = path.join(__dirname, 'node_modules', 'tas-client', 'dist', 'tas-client.min.js');
+        if (fs.existsSync(fallback)) {
+            return fallback;
+        }
+        throw new Error('Unable to locate the tas-client package entry for the CommonJS shim.');
+    }
+}
+
+/** @type {import('esbuild').Plugin} */
+const tasClientCommonJsPlugin = {
+    name: 'tas-client-umd-as-cjs',
+    setup(build) {
+        const tasClientNamespace = 'tas-client-cjs';
+        const tasEntry = resolveTasClientEntry();
+
+        build.onResolve({ filter: /^tas-client(\/bundle)?$/ }, () => ({
+            path: tasEntry,
+            namespace: tasClientNamespace,
+        }));
+
+        build.onLoad({ filter: /.*/, namespace: tasClientNamespace }, () => ({
+            contents: fs.readFileSync(tasEntry),
+            loader: 'js',
+            resolveDir: path.dirname(tasEntry),
+        }));
+    },
+};
+
 async function main() {
     fs.rmSync(distDir, { recursive: true, force: true });
 
@@ -86,7 +129,7 @@ async function main() {
         minify: production,
         keepNames: true,
         logLevel: 'warning',
-        plugins: [buildReporterPlugin],
+        plugins: [tasClientCommonJsPlugin, buildReporterPlugin],
     });
 
     await ctx.rebuild();
